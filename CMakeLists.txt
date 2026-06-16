@@ -15,6 +15,10 @@ option(ENABLE_KRB5         "Enable Kerberos support" OFF)
 option(ENABLE_ODBC_MARS    "Enable MARS" ON)
 option(ENABLE_EXTRA_CHECKS "Enable internal extra checks, DO NOT USE in production" OFF)
 option(ENABLE_MSDBLIB      "Enable MS style dblib" OFF)
+# ASI: we need the core TDS library plus db-lib (libsybdb), which our native
+# SQL Server driver links against. Skip the remaining client libs, apps,
+# server and pool. Set -DENABLE_APP_LIBS=ON to build the full tree.
+option(ENABLE_APP_LIBS     "Build ctlib, odbc, apps, server and pool" OFF)
 
 if(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 NEW)
@@ -496,12 +500,15 @@ include_directories(${CMAKE_BINARY_DIR}/include include iconv/include)
 add_subdirectory(src/utils)
 add_subdirectory(src/replacements)
 add_subdirectory(src/tds)
-add_subdirectory(src/ctlib)
+# ASI: db-lib (libsybdb) is always built — our native SQL Server driver links it.
 add_subdirectory(src/dblib)
-add_subdirectory(src/odbc)
-add_subdirectory(src/apps)
-add_subdirectory(src/server)
-add_subdirectory(src/pool)
+if(ENABLE_APP_LIBS)
+	add_subdirectory(src/ctlib)
+	add_subdirectory(src/odbc)
+	add_subdirectory(src/apps)
+	add_subdirectory(src/server)
+	add_subdirectory(src/pool)
+endif()
 
 configure_file(${CMAKE_BINARY_DIR}/include/config.h.in ${CMAKE_BINARY_DIR}/include/config.h)
 configure_file(${CMAKE_SOURCE_DIR}/include/tds_sysdep_public.h.in ${CMAKE_BINARY_DIR}/include/tds_sysdep_public.h)

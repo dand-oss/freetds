@@ -65,11 +65,11 @@ if (NOT WIN32)
 	set_target_properties(tds PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
-if(WIN32)
+# ASI: install the static tds lib on all platforms (we build only the core
+# TDS library, not the shared client libs that would otherwise bundle it).
 INSTALL(TARGETS tds
 	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	)
-endif(WIN32)
