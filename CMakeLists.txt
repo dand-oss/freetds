@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.10)
 
 project(FreeTDS)
 
+###############
+# ASI default settings
+list(APPEND CMAKE_MODULE_PATH "$ENV{ASV_CMAKE}")
+include(asv_cmake_defaults)
+asv_cmake_defaults()
+###############
+
 option(WITH_OPENSSL        "Link in OpenSSL if found" ON)
 option(ENABLE_ODBC_WIDE    "Enable ODBC wide character support" ON)
 option(ENABLE_KRB5         "Enable Kerberos support" OFF)
