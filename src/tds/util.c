@@ -73,7 +73,7 @@ tds_set_state(TDSSOCKET * tds, TDS_STATE state)
 	if (state == prior_state)
 		return state;
 
-	switch(state) {
+	switch (state) {
 	case TDS_PENDING:
 		if (prior_state == TDS_READING || prior_state == TDS_WRITING) {
 			tds->state = TDS_PENDING;
