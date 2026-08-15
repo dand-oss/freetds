@@ -374,7 +374,7 @@ syb_err_logmsg(DBPROCESS *dbproc, int severity, int dberr, int oserr, char *dber
 		dberr, severity, dberrstr ? dberrstr : "(null)", oserr, oserrstr ? oserrstr : "(null)");
 	fflush(stderr);
 
-	return 0;
+	return INT_EXIT;
 }
 
 int
