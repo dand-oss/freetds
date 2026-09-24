@@ -11,7 +11,13 @@ add_library(sybdb SHARED
 )
 target_compile_definitions(sybdb PUBLIC DLL_EXPORT=1)
 add_dependencies(sybdb encodings_h)
-target_link_libraries(sybdb tds replacements tdsutils ${lib_NETWORK} ${lib_BASE})
+target_link_libraries(sybdb PRIVATE tds replacements tdsutils ${lib_NETWORK} ${lib_BASE})
+if(OPENSSL_FOUND)
+	# Expose the TLS libraries through the FreeTDS target to consumers of db-lib.
+	target_link_libraries(sybdb PUBLIC OpenSSL::SSL OpenSSL::Crypto)
+endif()
+target_include_directories(sybdb INTERFACE
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 add_library(db-lib STATIC
 	dblib.c dbutil.c rpc.c bcp.c xact.c dbpivot.c buffering.h
@@ -27,7 +33,15 @@ if(MINGW OR CYGWIN)
 	set_target_properties(sybdb PROPERTIES LINK_FLAGS "--static")
 endif(MINGW OR CYGWIN)
 
-INSTALL(TARGETS sybdb db-lib
+INSTALL(TARGETS sybdb
+	EXPORT FreeTDSTargets
+	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	)
+
+INSTALL(TARGETS db-lib
 	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

@@ -241,7 +241,9 @@ function(CHECK_FUNCTION_EXISTS_DEFINE func)
 endfunction()
 
 if(WITH_OPENSSL)
-	find_package(OpenSSL)
+	# ASI: only the ports OpenSSL (ssl-jp), through its exported CMake config -
+	# never a host copy, which would put two OpenSSLs in one process
+	find_package(OpenSSL 3 CONFIG REQUIRED PATHS ${ASV_PLAT_PORTS}/ssl-jp NO_DEFAULT_PATH)
 endif(WITH_OPENSSL)
 if(OPENSSL_FOUND)
 	config_write("#define HAVE_OPENSSL 1\n\n")
@@ -617,3 +619,15 @@ set(FREETDS_CONF_FILES
 install(FILES ${FREETDS_PUBLIC_INCLUDE} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(FILES ${FREETDS_PUBLIC_INCLUDE_2} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/freetds)
 install(FILES ${FREETDS_CONF_FILES} DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR})
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/cmake/FreeTDSConfig.cmake.in
+	${CMAKE_CURRENT_BINARY_DIR}/FreeTDSConfig.cmake
+	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/FreeTDS)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/FreeTDSConfig.cmake
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/FreeTDS)
+install(EXPORT FreeTDSTargets
+	FILE FreeTDSTargets.cmake
+	NAMESPACE FreeTDS::
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/FreeTDS)
